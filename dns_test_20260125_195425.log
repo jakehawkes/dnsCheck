@@ -1,0 +1,33 @@
+[2026-01-25 19:54:25] === DNS Monitoring Started ===
+[2026-01-25 19:54:25] Duration: 24 hours
+[2026-01-25 19:54:25] Interval: 60s
+[2026-01-25 19:54:25] Log file: /Users/jake/dns_monitor/dns_test_20260125_195425.log
+[2026-01-25 19:54:25] Database: /Users/jake/dns_monitor/dns_monitoring.db
+[2026-01-25 19:54:25] 
+[2026-01-25 19:54:25] Database initialized at /Users/jake/dns_monitor/dns_monitoring.db
+[2026-01-25 19:54:25] Attempting to auto-detect ISP DNS servers...
+[2026-01-25 19:54:25] Detected potential ISP DNS servers:
+[2026-01-25 19:54:25]   192.168.1.1
+[2026-01-25 19:54:25] Set ISP_DNS_1 to 192.168.1.1
+[2026-01-25 19:54:25] Testing 12 domains against 6 DNS servers
+[2026-01-25 19:54:25] DNS Servers: 8.8.8.8
+[2026-01-25 19:54:25] Streaming domains tracked for IP changes: netflix.com
+[2026-01-25 19:54:25] 
+[2026-01-25 19:54:25] Test run ID: 3
+[2026-01-25 19:54:25] --- Test Iteration #1 ---
+[2026-01-25 19:54:26] FAILURE [FAIL]: System DNS: google.com (8ms)
+[2026-01-25 19:54:26] FAILURE [FAIL]: System DNS: cloudflare.com (8ms)
+[2026-01-25 19:54:27] FAILURE [FAIL]: System DNS: github.com (7ms)
+[2026-01-25 19:54:28] FAILURE [FAIL]: System DNS: stackoverflow.com (8ms)
+[2026-01-25 19:54:28] FAILURE [FAIL]: System DNS: netflix.com (9ms)
+[2026-01-25 19:54:29] FAILURE [FAIL]: System DNS: nflxvideo.net (9ms)
+[2026-01-25 19:54:29] IP CHANGE DETECTED: nflxvideo.net via 8.8.8.8: 34.252.74.1,107.20.175.192,18.236.7.30 -> 107.20.175.192,18.236.7.30,34.252.74.1 (last change: 0s ago)
+[2026-01-25 19:54:29] WARNING: Streaming service nflxvideo.net changing IPs frequently (instability indicator)
+[2026-01-25 19:54:30] FAILURE [FAIL]: System DNS: nflxext.com (9ms)
+[2026-01-25 19:54:30] FAILURE [FAIL]: System DNS: nflxso.net (9ms)
+[2026-01-25 19:54:31] FAILURE [NODATA]: 8.8.8.8: nflxso.net (108ms) - NODATA
+[2026-01-25 19:54:31] FAILURE [NODATA]: 8.8.4.4: nflxso.net (50ms) - NODATA
+[2026-01-25 19:54:31] FAILURE [NODATA]: 1.1.1.1: nflxso.net (42ms) - NODATA
+[2026-01-25 19:54:31] FAILURE [NODATA]: 1.0.0.1: nflxso.net (53ms) - NODATA
+[2026-01-25 19:54:31] FAILURE [NODATA]: 192.168.1.1: nflxso.net (19ms) - NODATA
+[2026-01-25 19:54:31] FAILURE [FAIL]: System DNS: tv.apple.com (8ms)

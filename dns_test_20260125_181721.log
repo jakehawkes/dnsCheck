@@ -1,0 +1,176 @@
+[2026-01-25 18:17:21] === DNS Monitoring Started ===
+[2026-01-25 18:17:21] Duration: 24 hours
+[2026-01-25 18:17:21] Interval: 60s
+[2026-01-25 18:17:21] Log file: /Users/jake/dns_monitor/dns_test_20260125_181721.log
+[2026-01-25 18:17:21] Database: /Users/jake/dns_monitor/dns_monitoring.db
+[2026-01-25 18:17:21] 
+[2026-01-25 18:17:21] Database initialized at /Users/jake/dns_monitor/dns_monitoring.db
+[2026-01-25 18:17:21] Attempting to auto-detect ISP DNS servers...
+[2026-01-25 18:17:21] Detected potential ISP DNS servers:
+[2026-01-25 18:17:21]   192.168.1.1
+[2026-01-25 18:17:21] Set ISP_DNS_1 to 192.168.1.1
+[2026-01-25 18:17:21] Testing 12 domains against 6 DNS servers
+[2026-01-25 18:17:21] DNS Servers: 8.8.8.8
+[2026-01-25 18:17:21] Streaming domains tracked for IP changes: netflix.com
+[2026-01-25 18:17:21] 
+[2026-01-25 18:17:22] Test run ID: 1
+[2026-01-25 18:17:22] --- Test Iteration #1 ---
+[2026-01-25 18:17:22] WARNING: DNS server 8.8.8.8 is 
+[2026-01-25 18:17:22] WARNING: DNS server 8.8.4.4 is 
+[2026-01-25 18:17:22] WARNING: DNS server 1.1.1.1 is 
+[2026-01-25 18:17:22] WARNING: DNS server 1.0.0.1 is 
+[2026-01-25 18:17:22] WARNING: DNS server 192.168.1.1 is 
+[2026-01-25 18:17:22] FAILURE []: System DNS: google.com (ms)
+[2026-01-25 18:17:22] FAILURE []: 8.8.8.8: google.com (ms) - 
+[2026-01-25 18:17:22] FAILURE []: 8.8.4.4: google.com (ms) - 
+[2026-01-25 18:17:22] FAILURE []: 1.1.1.1: google.com (ms) - 
+[2026-01-25 18:17:22] FAILURE []: 1.0.0.1: google.com (ms) - 
+[2026-01-25 18:17:22] FAILURE []: 192.168.1.1: google.com (ms) - 
+[2026-01-25 18:17:22] FAILURE []: System DNS: cloudflare.com (ms)
+[2026-01-25 18:17:22] FAILURE []: 8.8.8.8: cloudflare.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 8.8.4.4: cloudflare.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 1.1.1.1: cloudflare.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 1.0.0.1: cloudflare.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 192.168.1.1: cloudflare.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: System DNS: github.com (ms)
+[2026-01-25 18:17:23] FAILURE []: 8.8.8.8: github.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 8.8.4.4: github.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 1.1.1.1: github.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 1.0.0.1: github.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: 192.168.1.1: github.com (ms) - 
+[2026-01-25 18:17:23] FAILURE []: System DNS: stackoverflow.com (ms)
+[2026-01-25 18:17:24] FAILURE []: 8.8.8.8: stackoverflow.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 8.8.4.4: stackoverflow.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 1.1.1.1: stackoverflow.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 1.0.0.1: stackoverflow.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 192.168.1.1: stackoverflow.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: System DNS: netflix.com (ms)
+[2026-01-25 18:17:24] FAILURE []: 8.8.8.8: netflix.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 8.8.4.4: netflix.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 1.1.1.1: netflix.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 1.0.0.1: netflix.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: 192.168.1.1: netflix.com (ms) - 
+[2026-01-25 18:17:24] FAILURE []: System DNS: nflxvideo.net (ms)
+[2026-01-25 18:17:25] FAILURE []: 8.8.8.8: nflxvideo.net (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 8.8.4.4: nflxvideo.net (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 1.1.1.1: nflxvideo.net (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 1.0.0.1: nflxvideo.net (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 192.168.1.1: nflxvideo.net (ms) - 
+[2026-01-25 18:17:25] FAILURE []: System DNS: nflxext.com (ms)
+[2026-01-25 18:17:25] FAILURE []: 8.8.8.8: nflxext.com (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 8.8.4.4: nflxext.com (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 1.1.1.1: nflxext.com (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 1.0.0.1: nflxext.com (ms) - 
+[2026-01-25 18:17:25] FAILURE []: 192.168.1.1: nflxext.com (ms) - 
+[2026-01-25 18:17:25] FAILURE []: System DNS: nflxso.net (ms)
+[2026-01-25 18:17:26] FAILURE []: 8.8.8.8: nflxso.net (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 8.8.4.4: nflxso.net (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 1.1.1.1: nflxso.net (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 1.0.0.1: nflxso.net (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 192.168.1.1: nflxso.net (ms) - 
+[2026-01-25 18:17:26] FAILURE []: System DNS: tv.apple.com (ms)
+[2026-01-25 18:17:26] FAILURE []: 8.8.8.8: tv.apple.com (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 8.8.4.4: tv.apple.com (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 1.1.1.1: tv.apple.com (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 1.0.0.1: tv.apple.com (ms) - 
+[2026-01-25 18:17:26] FAILURE []: 192.168.1.1: tv.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: System DNS: play.itunes.apple.com (ms)
+[2026-01-25 18:17:27] FAILURE []: 8.8.8.8: play.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: 8.8.4.4: play.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: 1.1.1.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: 1.0.0.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: 192.168.1.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: System DNS: hls.itunes.apple.com (ms)
+[2026-01-25 18:17:27] FAILURE []: 8.8.8.8: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:17:27] FAILURE []: 8.8.4.4: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 1.1.1.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 1.0.0.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 192.168.1.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: System DNS: ocsp.apple.com (ms)
+[2026-01-25 18:17:28] FAILURE []: 8.8.8.8: ocsp.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 8.8.4.4: ocsp.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 1.1.1.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 1.0.0.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:17:28] FAILURE []: 192.168.1.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:17:28] Current resolv.conf nameservers: 192.168.1.1 
+[2026-01-25 18:17:28] 
+[2026-01-25 18:18:28] --- Test Iteration #2 ---
+[2026-01-25 18:18:28] WARNING: DNS server 8.8.8.8 is 
+[2026-01-25 18:18:28] WARNING: DNS server 8.8.4.4 is 
+[2026-01-25 18:18:29] WARNING: DNS server 1.1.1.1 is 
+[2026-01-25 18:18:29] WARNING: DNS server 1.0.0.1 is 
+[2026-01-25 18:18:29] WARNING: DNS server 192.168.1.1 is 
+[2026-01-25 18:18:29] FAILURE []: System DNS: google.com (ms)
+[2026-01-25 18:18:29] FAILURE []: 8.8.8.8: google.com (ms) - 
+[2026-01-25 18:18:29] FAILURE []: 8.8.4.4: google.com (ms) - 
+[2026-01-25 18:18:29] FAILURE []: 1.1.1.1: google.com (ms) - 
+[2026-01-25 18:18:29] FAILURE []: 1.0.0.1: google.com (ms) - 
+[2026-01-25 18:18:29] FAILURE []: 192.168.1.1: google.com (ms) - 
+[2026-01-25 18:18:29] FAILURE []: System DNS: cloudflare.com (ms)
+[2026-01-25 18:18:29] FAILURE []: 8.8.8.8: cloudflare.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 8.8.4.4: cloudflare.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 1.1.1.1: cloudflare.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 1.0.0.1: cloudflare.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 192.168.1.1: cloudflare.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: System DNS: github.com (ms)
+[2026-01-25 18:18:30] FAILURE []: 8.8.8.8: github.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 8.8.4.4: github.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 1.1.1.1: github.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 1.0.0.1: github.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: 192.168.1.1: github.com (ms) - 
+[2026-01-25 18:18:30] FAILURE []: System DNS: stackoverflow.com (ms)
+[2026-01-25 18:18:31] FAILURE []: 8.8.8.8: stackoverflow.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 8.8.4.4: stackoverflow.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 1.1.1.1: stackoverflow.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 1.0.0.1: stackoverflow.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 192.168.1.1: stackoverflow.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: System DNS: netflix.com (ms)
+[2026-01-25 18:18:31] FAILURE []: 8.8.8.8: netflix.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 8.8.4.4: netflix.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 1.1.1.1: netflix.com (ms) - 
+[2026-01-25 18:18:31] FAILURE []: 1.0.0.1: netflix.com (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 192.168.1.1: netflix.com (ms) - 
+[2026-01-25 18:18:32] FAILURE []: System DNS: nflxvideo.net (ms)
+[2026-01-25 18:18:32] FAILURE []: 8.8.8.8: nflxvideo.net (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 8.8.4.4: nflxvideo.net (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 1.1.1.1: nflxvideo.net (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 1.0.0.1: nflxvideo.net (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 192.168.1.1: nflxvideo.net (ms) - 
+[2026-01-25 18:18:32] FAILURE []: System DNS: nflxext.com (ms)
+[2026-01-25 18:18:32] FAILURE []: 8.8.8.8: nflxext.com (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 8.8.4.4: nflxext.com (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 1.1.1.1: nflxext.com (ms) - 
+[2026-01-25 18:18:32] FAILURE []: 1.0.0.1: nflxext.com (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 192.168.1.1: nflxext.com (ms) - 
+[2026-01-25 18:18:33] FAILURE []: System DNS: nflxso.net (ms)
+[2026-01-25 18:18:33] FAILURE []: 8.8.8.8: nflxso.net (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 8.8.4.4: nflxso.net (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 1.1.1.1: nflxso.net (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 1.0.0.1: nflxso.net (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 192.168.1.1: nflxso.net (ms) - 
+[2026-01-25 18:18:33] FAILURE []: System DNS: tv.apple.com (ms)
+[2026-01-25 18:18:33] FAILURE []: 8.8.8.8: tv.apple.com (ms) - 
+[2026-01-25 18:18:33] FAILURE []: 8.8.4.4: tv.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 1.1.1.1: tv.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 1.0.0.1: tv.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 192.168.1.1: tv.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: System DNS: play.itunes.apple.com (ms)
+[2026-01-25 18:18:34] FAILURE []: 8.8.8.8: play.itunes.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 8.8.4.4: play.itunes.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 1.1.1.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 1.0.0.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: 192.168.1.1: play.itunes.apple.com (ms) - 
+[2026-01-25 18:18:34] FAILURE []: System DNS: hls.itunes.apple.com (ms)
+[2026-01-25 18:18:34] FAILURE []: 8.8.8.8: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 8.8.4.4: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 1.1.1.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 1.0.0.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 192.168.1.1: hls.itunes.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: System DNS: ocsp.apple.com (ms)
+[2026-01-25 18:18:35] FAILURE []: 8.8.8.8: ocsp.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 8.8.4.4: ocsp.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 1.1.1.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 1.0.0.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:18:35] FAILURE []: 192.168.1.1: ocsp.apple.com (ms) - 
+[2026-01-25 18:18:35] Current resolv.conf nameservers: 192.168.1.1 
+[2026-01-25 18:18:35] 

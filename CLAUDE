@@ -1,0 +1,282 @@
+# DNS Monitoring System
+
+## Project Overview
+This is a comprehensive DNS monitoring and diagnostic tool designed to identify intermittent DNS issues by testing the entire DNS resolution chain over a 24-hour period. The system tracks DNS server performance, detects streaming service IP instability, analyzes recursion failures, and correlates various DNS failure modes with network conditions.
+
+## Key Components
+
+### 1. dns_monitor.sh
+The main monitoring script that runs continuous DNS testing and stores results in SQLite.
+
+**Core Features:**
+- Auto-detects ISP DNS servers from system configuration
+- Tests multiple DNS servers (Google, Cloudflare, ISP DNS)
+- Tracks IP changes for streaming services (Netflix, Apple TV)
+- Performs full DNS recursion testing to root servers
+- Detects DNS hijacking attempts
+- Tests DNS consistency across multiple servers
+- Records all results in SQLite database for analysis
+
+**Test Domains:**
+- General: google.com, cloudflare.com, github.com, stackoverflow.com
+- Netflix: netflix.com, nflxvideo.net, nflxext.com, nflxso.net
+- Apple TV: tv.apple.com, play.itunes.apple.com, hls.itunes.apple.com, ocsp.apple.com
+
+**Failure Modes Detected:**
+- TIMEOUT - DNS server not responding
+- SERVFAIL - Upstream DNS server failure
+- NXDOMAIN - Domain doesn't exist
+- REFUSED - DNS server refusing queries
+- NODATA - Valid response but no A records
+- NETUNREACH - Network unreachable
+- HIJACKED - ISP/router redirecting DNS
+- INCONSISTENT - Different IPs from different servers
+- ROOT_SERVFAIL - Root server failure
+- TLD_SERVFAIL - TLD server failure
+- AUTH_SERVFAIL - Authoritative server failure
+
+### 2. analyze_dns_db.sh
+Interactive menu-driven analysis tool for querying the monitoring database.
+
+**Analysis Options:**
+1. Test run summaries with failure rates
+2. IP change patterns for streaming services (instability detection)
+3. DNS server reliability comparison and ratings
+4. Failure timeline (hourly breakdown)
+5. Recursion failure analysis (identifies where recursion breaks)
+6. ISP DNS vs Public DNS performance comparison
+7. Streaming service instability patterns (correlates IP changes with failures)
+8. Hourly failure distribution
+9. CSV export for external analysis
+10. Custom SQL queries
+
+## Database Schema
+
+### test_runs
+Tracks each monitoring session:
+- run_id (PK)
+- start_time, end_time
+- total_tests, total_failures
+
+### dns_queries
+Every DNS query result:
+- query_id (PK), run_id (FK)
+- timestamp, dns_server, dns_server_name, domain
+- status, response_time_ms
+- ip_addresses, failure_mode
+
+### ip_changes
+Tracks when streaming service IPs change:
+- change_id (PK)
+- domain, dns_server, dns_server_name
+- old_ips, new_ips
+- change_time
+- time_since_last_change_seconds
+
+### dns_reachability
+Ping tests to DNS servers:
+- reach_id (PK), run_id (FK)
+- dns_server, dns_server_name, reachable
+- ping_time_ms
+
+### recursion_tests
+Full recursion path analysis:
+- recursion_id (PK), run_id (FK)
+- domain, dns_server
+- recursion_depth
+- root_servers_queried, tld_servers_queried, authoritative_servers_queried
+- status, failure_point
+
+### dns_hijacking
+Tests for DNS manipulation:
+- hijack_id (PK), run_id (FK)
+- dns_server, test_domain
+- returned_ip, is_hijacked
+
+### consistency_checks
+Cross-server consistency validation:
+- check_id (PK), run_id (FK)
+- domain, is_consistent
+- server_responses
+
+## Usage
+
+### Initial Setup
+```bash
+# Make scripts executable
+chmod +x dns_monitor.sh analyze_dns_db.sh
+
+# Run monitor (auto-detects ISP DNS)
+./dns_monitor.sh
+
+# Or run in background
+nohup ./dns_monitor.sh > /dev/null 2>&1 &
+```
+
+### Customization
+Edit dns_monitor.sh to:
+- Replace ISP_DNS_1 and ISP_DNS_2 with your ISP's DNS servers (script auto-detects)
+- Adjust INTERVAL (default 60s)
+- Adjust DURATION (default 24 hours)
+- Add/remove test domains
+
+### Analysis
+```bash
+# Interactive menu
+./analyze_dns_db.sh
+
+# Direct SQL query
+sqlite3 data/dns_monitoring.db "SELECT * FROM test_runs;"
+
+# Run tests
+./test_dns_monitor.sh
+```
+
+## File Locations
+
+- Logs: `data/dns_test_YYYYMMDD_HHMMSS.log`
+- Database: `data/dns_monitoring.db`
+- Exports: `data/exports/`
+- Test script: `test_dns_monitor.sh`
+
+All data files are stored in the `data/` subdirectory (gitignored).
+
+## Key Insights the System Provides
+
+1. **Streaming Service Instability Detection**
+   - Tracks if Netflix/Apple TV IPs change frequently
+   - Correlates IP changes with DNS query failures
+   - Identifies if issues are service-side vs. DNS-side
+
+2. **DNS Server Performance Comparison**
+   - ISP DNS vs Public DNS (Google, Cloudflare)
+   - Average response times
+   - Failure rates and reliability ratings
+
+3. **Recursion Chain Analysis**
+   - Identifies where DNS recursion breaks (root, TLD, or authoritative)
+   - Tracks root server performance
+   - Detects upstream DNS infrastructure issues
+
+4. **Temporal Patterns**
+   - Hourly failure distribution
+   - Time-of-day correlation with issues
+   - Identifies if problems occur at specific times
+
+5. **DNS Hijacking/Manipulation**
+   - Tests if ISP/router redirects invalid domains
+   - Detects NXDOMAIN redirection
+
+## Common Troubleshooting Scenarios
+
+### High Failure Rate on ISP DNS
+If ISP DNS shows >5% failure rate compared to public DNS:
+- ISP DNS infrastructure issues
+- Consider switching to public DNS (8.8.8.8, 1.1.1.1)
+
+### Frequent Streaming Service IP Changes
+If Netflix/Apple IPs change every <30 minutes:
+- Normal CDN behavior in some cases
+- If correlated with playback issues, indicates CDN instability
+- Check if failures spike around IP change times
+
+### ROOT_SERVFAIL or TLD_SERVFAIL
+If recursion tests show root/TLD failures:
+- Upstream DNS infrastructure problems
+- ISP's recursive resolver having issues reaching root servers
+- Possible BGP/routing issues
+
+### Inconsistent Responses Across Servers
+If different DNS servers return different IPs:
+- Possible DNS cache poisoning
+- Split-brain DNS configuration
+- CDN geo-routing differences (normal for some services)
+
+### Time-Based Patterns
+If failures cluster at specific hours:
+- Network congestion during peak times
+- ISP maintenance windows
+- Upstream provider issues
+
+## Dependencies
+
+- bash 4.0+
+- dig (dnsutils/bind-utils package)
+- sqlite3
+- getent
+- ping
+- Standard Unix tools (awk, sed, grep, tr)
+
+## Advanced Usage
+
+### Custom SQL Queries
+```sql
+-- Find domains with highest failure rates
+SELECT domain, 
+       COUNT(*) as queries,
+       SUM(CASE WHEN status != 'OK' THEN 1 ELSE 0 END) as failures,
+       ROUND(SUM(CASE WHEN status != 'OK' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as failure_pct
+FROM dns_queries
+GROUP BY domain
+ORDER BY failure_pct DESC;
+
+-- Identify correlation between IP changes and failures
+SELECT ic.domain,
+       ic.change_time,
+       COUNT(*) as failures_within_5min
+FROM ip_changes ic
+JOIN dns_queries dq ON dq.domain = ic.domain
+WHERE dq.status != 'OK'
+  AND datetime(dq.timestamp) BETWEEN datetime(ic.change_time, '-5 minutes') 
+  AND datetime(ic.change_time, '+5 minutes')
+GROUP BY ic.change_id;
+```
+
+### Exporting for Graphing
+```bash
+# Export hourly failure rates for graphing
+sqlite3 -csv data/dns_monitoring.db \
+  "SELECT strftime('%H:00', timestamp) as hour,
+          COUNT(*) as total,
+          SUM(CASE WHEN status != 'OK' THEN 1 ELSE 0 END) as failures
+   FROM dns_queries
+   GROUP BY hour" > hourly_stats.csv
+```
+
+## Network Architecture Context
+
+This tool is designed for Calgary, Alberta with:
+- ISP DNS servers (auto-detected from DHCP/resolv.conf)
+- Testing against Google (8.8.8.8, 8.8.4.4) and Cloudflare (1.1.1.1, 1.0.0.1)
+- Focus on streaming services (Netflix, Apple TV) common in home networks
+- SCADA/industrial network awareness (engineer may be troubleshooting similar issues in work context)
+
+## Future Enhancements
+
+Potential additions:
+- DNSSEC validation testing
+- IPv6 DNS testing (AAAA records)
+- DNS-over-HTTPS (DoH) testing
+- DNS-over-TLS (DoT) testing
+- Integration with Home Assistant for alerting
+- Graphical dashboard (web interface)
+- Automated report generation
+- Email alerts on critical failures
+- Integration with AVEVA Historian (for SCADA context)
+
+## Integration Opportunities
+
+Given the user's background in SCADA and Home Assistant:
+- Could publish DNS metrics to Home Assistant via MQTT
+- Could store results in AVEVA Historian for correlation with industrial network issues
+- Could trigger Home Assistant automations on DNS failures
+- Could integrate with existing NAS/QNAP infrastructure for centralized monitoring
+
+## Notes
+
+- Script auto-detects ISP DNS from resolv.conf, DHCP leases, and NetworkManager
+- Streaming domain IPs changing <1hr apart flagged as unstable
+- Recursion tests run every 20th iteration (resource intensive)
+- Hijacking tests run every 10th iteration
+- Consistency checks run every 5th iteration
+- All timestamps stored in UTC, displayed in local time
