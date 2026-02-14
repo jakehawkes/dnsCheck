@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(md2html:*)",
+      "Bash(pip:*)",
+      "Bash(brew:*)",
+      "Bash(cat:*)",
+      "Bash(dig:*)",
+      "Bash(done)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(getent:*)",
+      "Bash(git:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(pgrep:*)",
+      "Bash(pip3:*)",
+      "Bash(pkill:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(sqlite3:*)",
+      "Bash(timeout:*)",
+      "Bash(tree:*)",
+      "Bash(xargs ls:*)",
+      "Bash(yq eval:*)",
+      "WebFetch(domain:*)",
+      "WebSearch"
+    ]
+  }
+}
