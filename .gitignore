@@ -1,2 +1,3 @@
 # Data files (logs, database, exports)
 data/
+.DS_Store
