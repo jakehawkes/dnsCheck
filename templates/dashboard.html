@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNS Monitor Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#c9d1d9;--dim:#8b949e;
+--green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,
+"Segoe UI",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;padding:16px}
+h1{font-size:20px;margin-bottom:4px}
+h2{font-size:15px;color:var(--blue);margin:0 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.top{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.top select{background:var(--card);color:var(--text);border:1px solid var(--border);
+padding:4px 8px;border-radius:4px;font-size:13px}
+.top label{color:var(--dim);font-size:13px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600}
+.badge-ok{background:#23803020;color:var(--green)}.badge-fail{background:#f8514920;color:var(--red)}
+.badge-warn{background:#d2992220;color:var(--yellow)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--dim);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--border)}
+td{padding:4px 8px;border-bottom:1px solid #21262d}
+tr:hover td{background:#1c2129}
+.ok{color:var(--green)}.fail{color:var(--red)}.warn{color:var(--yellow)}.dim{color:var(--dim)}
+.chart-wrap{position:relative;height:200px}
+.kpi{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.kpi-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 16px;min-width:120px}
+.kpi-val{font-size:24px;font-weight:700}.kpi-label{font-size:12px;color:var(--dim)}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.status-dot.up{background:var(--green)}.status-dot.down{background:var(--red)}
+#refresh-indicator{color:var(--dim);font-size:12px}
+.empty{color:var(--dim);font-style:italic;padding:12px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>DNS Monitor</h1>
+  <select id="run-select">
+    {% for r in runs %}
+    <option value="{{r.run_id}}" {% if loop.first %}selected{% endif %}>
+      Run #{{r.run_id}} &mdash; {{r.start}} {% if r.total_tests %}({{r.total_tests}} iters, {{r.total_failures}} fails){% else %}(running){% endif %}
+    </option>
+    {% endfor %}
+  </select>
+  <label><input type="checkbox" id="auto-refresh" checked> Auto-refresh</label>
+  <span id="refresh-indicator"></span>
+</div>
+
+<div class="kpi" id="kpi-row"></div>
+
+<div class="grid">
+  <div class="card"><h2>Server Reliability</h2><div id="t-reliability"></div></div>
+  <div class="card"><h2>Latency Distribution</h2><div class="chart-wrap"><canvas id="c-latency"></canvas></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>Failure Timeline</h2><div class="chart-wrap"><canvas id="c-timeline"></canvas></div></div>
+  <div class="card"><h2>Recent Failures</h2><div id="t-failures" style="max-height:250px;overflow-y:auto"></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>TTL Analysis (lowest first)</h2><div id="t-ttl" style="max-height:300px;overflow-y:auto"></div></div>
+  <div class="card"><h2>IP Changes</h2><div id="t-ipchanges"></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>End-to-End Validation</h2><div id="t-e2e"></div></div>
+  <div class="card"><h2>HTTP Connectivity</h2><div id="t-http"></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>DNS-over-HTTPS</h2><div id="t-doh"></div></div>
+  <div class="card"><h2>Reachability</h2><div id="t-reach"></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>Interception Detection</h2><div id="t-intercept"></div></div>
+  <div class="card"><h2>Hijacking Detection</h2><div id="t-hijack"></div></div>
+</div>
+<div class="grid">
+  <div class="card"><h2>Consistency Issues</h2><div id="t-consistency"></div></div>
+  <div class="card"><h2>IP Change Log</h2><div id="t-iplog" style="max-height:300px;overflow-y:auto"></div></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let RUN = parseInt($('#run-select').value);
+let latencyChart = null, timelineChart = null;
+
+$('#run-select').addEventListener('change', e => { RUN = parseInt(e.target.value); refresh(); });
+
+function api(path) { return fetch(`/api/${path}/${RUN}`).then(r => r.json()); }
+
+function tbl(rows, cols) {
+  if (!rows || !rows.length) return '<div class="empty">No data</div>';
+  let h = '<table><tr>' + cols.map(c => `<th>${c.label||c.key}</th>`).join('') + '</tr>';
+  for (const r of rows) {
+    h += '<tr>';
+    for (const c of cols) {
+      let v = r[c.key];
+      if (v === null || v === undefined) v = '-';
+      if (c.fmt) v = c.fmt(v, r);
+      h += `<td>${v}</td>`;
+    }
+    h += '</tr>';
+  }
+  return h + '</table>';
+}
+
+function failPctFmt(v) {
+  v = parseFloat(v);
+  if (v === 0) return '<span class="ok">0%</span>';
+  if (v < 1) return `<span class="warn">${v}%</span>`;
+  return `<span class="fail">${v}%</span>`;
+}
+
+function statusFmt(v) {
+  if (v === 'OK' || v === 'NOERROR') return `<span class="ok">${v}</span>`;
+  return `<span class="fail">${v}</span>`;
+}
+
+function msFmt(v) { return v ? `${Math.round(v)}ms` : '-'; }
+
+async function refresh() {
+  const t0 = Date.now();
+  try {
+    const [summary, reliability, failures, timeline, ttl, ipchanges, iplog,
+           http, e2e, doh, reach, intercept, hijack, consistency, latency]
+      = await Promise.all([
+        api('summary'), api('server_reliability'), api('failures'),
+        api('failure_timeline'), api('ttl'), api('ip_changes'), api('ip_change_log'),
+        api('http'), api('e2e'), api('doh'), api('reachability'),
+        api('interception'), api('hijacking'), api('consistency'),
+        api('latency_distribution')
+      ]);
+
+    // KPIs
+    const totalQ = summary.total_queries || 0;
+    const okQ = summary.ok_queries || 0;
+    const failQ = totalQ - okQ;
+    const failRate = totalQ ? ((failQ/totalQ)*100).toFixed(2) : '0';
+    const e2eFails = (e2e||[]).reduce((a,r) => a + (r.times_fail||0), 0);
+    const intercepted = (intercept||[]).reduce((a,r) => a + (r.detections||0), 0);
+    const hijacked = (hijack||[]).reduce((a,r) => a + (r.detections||0), 0);
+
+    $('#kpi-row').innerHTML = `
+      <div class="kpi-box"><div class="kpi-val">${totalQ}</div><div class="kpi-label">Total Queries</div></div>
+      <div class="kpi-box"><div class="kpi-val ${failRate==='0.00'||failRate==='0'?'ok':'fail'}">${failRate}%</div><div class="kpi-label">Failure Rate</div></div>
+      <div class="kpi-box"><div class="kpi-val ${e2eFails?'fail':'ok'}">${e2eFails}</div><div class="kpi-label">E2E Failures</div></div>
+      <div class="kpi-box"><div class="kpi-val ${intercepted?'fail':'ok'}">${intercepted}</div><div class="kpi-label">Interceptions</div></div>
+      <div class="kpi-box"><div class="kpi-val ${hijacked?'fail':'ok'}">${hijacked}</div><div class="kpi-label">Hijacks</div></div>
+    `;
+
+    // Tables
+    $('#t-reliability').innerHTML = tbl(reliability, [
+      {key:'server',label:'Server'}, {key:'ip',label:'IP'},
+      {key:'total',label:'Queries'}, {key:'ok',label:'OK'}, {key:'failed',label:'Fail'},
+      {key:'avg_ms',label:'Avg(ms)',fmt:msFmt}, {key:'p95_ms',label:'P95(ms)',fmt:msFmt},
+      {key:'fail_pct',label:'Fail%',fmt:failPctFmt}
+    ]);
+
+    $('#t-failures').innerHTML = tbl(failures, [
+      {key:'time',label:'Time'}, {key:'server',label:'Server'},
+      {key:'domain',label:'Domain'}, {key:'status',label:'Status',fmt:statusFmt},
+      {key:'ms',label:'ms',fmt:msFmt}
+    ]);
+
+    $('#t-ttl').innerHTML = tbl(ttl, [
+      {key:'domain',label:'Domain'}, {key:'server',label:'Server'},
+      {key:'min_ttl',label:'Min'}, {key:'avg_ttl',label:'Avg'}, {key:'max_ttl',label:'Max'},
+      {key:'samples',label:'Samples'}
+    ]);
+
+    $('#t-ipchanges').innerHTML = tbl(ipchanges, [
+      {key:'domain',label:'Domain'}, {key:'server',label:'Server'},
+      {key:'changes',label:'Changes'}, {key:'avg_interval_min',label:'Avg Interval(min)'},
+      {key:'min_interval_sec',label:'Min Interval(sec)'}
+    ]);
+
+    $('#t-iplog').innerHTML = tbl(iplog, [
+      {key:'time',label:'Time'}, {key:'domain',label:'Domain'}, {key:'server',label:'Server'},
+      {key:'old_ips',label:'Old IPs'}, {key:'new_ips',label:'New IPs'}
+    ]);
+
+    $('#t-http').innerHTML = tbl(http, [
+      {key:'domain',label:'Domain'}, {key:'tests',label:'Tests'},
+      {key:'avg_ms',label:'Avg(ms)',fmt:msFmt}, {key:'max_ms',label:'Max(ms)',fmt:msFmt},
+      {key:'failures',label:'Failures',fmt:(v)=>v?`<span class="fail">${v}</span>`:'<span class="ok">0</span>'}
+    ]);
+
+    $('#t-e2e').innerHTML = tbl(e2e, [
+      {key:'server',label:'DNS Server'}, {key:'domain',label:'Domain'},
+      {key:'resolved_ip',label:'Resolved IP'},
+      {key:'times_ok',label:'OK'}, {key:'times_fail',label:'Fail',
+        fmt:(v)=>v?`<span class="fail">${v}</span>`:'<span class="ok">0</span>'},
+      {key:'avg_connect_ms',label:'Connect(ms)',fmt:msFmt}
+    ]);
+
+    $('#t-doh').innerHTML = tbl(doh, [
+      {key:'provider',label:'Provider'}, {key:'domain',label:'Domain'},
+      {key:'status',label:'Status',fmt:statusFmt},
+      {key:'ips',label:'IPs'}, {key:'avg_ms',label:'Avg(ms)',fmt:msFmt},
+      {key:'avg_ttl',label:'TTL'}
+    ]);
+
+    $('#t-reach').innerHTML = tbl(reach, [
+      {key:'server',label:'Server'}, {key:'ip',label:'IP'},
+      {key:'up',label:'Up',fmt:(v)=>`<span class="ok">${v}</span>`},
+      {key:'down',label:'Down',fmt:(v)=>v?`<span class="fail">${v}</span>`:'0'},
+      {key:'avg_ms',label:'Avg(ms)',fmt:msFmt}
+    ]);
+
+    $('#t-intercept').innerHTML = tbl(intercept, [
+      {key:'server',label:'Server'}, {key:'ip',label:'IP'},
+      {key:'detections',label:'Detections',fmt:(v)=>v?`<span class="fail">${v}</span>`:'<span class="ok">0</span>'},
+      {key:'tests',label:'Tests'}
+    ]);
+
+    $('#t-hijack').innerHTML = tbl(hijack, [
+      {key:'server',label:'Server'}, {key:'ip',label:'IP'},
+      {key:'detections',label:'Detections',fmt:(v)=>v?`<span class="fail">${v}</span>`:'<span class="ok">0</span>'},
+      {key:'tests',label:'Tests'}
+    ]);
+
+    $('#t-consistency').innerHTML = tbl(consistency, [
+      {key:'domain',label:'Domain'},
+      {key:'consistent_checks',label:'Consistent'},
+      {key:'inconsistent_checks',label:'Inconsistent',
+        fmt:(v)=>v?`<span class="warn">${v}</span>`:'0'}
+    ]);
+
+    // Charts
+    updateLatencyChart(latency);
+    updateTimelineChart(timeline);
+
+    $('#refresh-indicator').textContent = `Updated ${new Date().toLocaleTimeString()} (${Date.now()-t0}ms)`;
+  } catch(e) {
+    $('#refresh-indicator').textContent = `Error: ${e.message}`;
+  }
+}
+
+function updateLatencyChart(data) {
+  const labels = data.map(d => d.bucket);
+  const values = data.map(d => d.count);
+  if (latencyChart) { latencyChart.destroy(); }
+  latencyChart = new Chart($('#c-latency'), {
+    type: 'bar',
+    data: {
+      labels, datasets: [{
+        data: values, backgroundColor: '#58a6ff80', borderColor: '#58a6ff', borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } },
+        y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+      }
+    }
+  });
+}
+
+function updateTimelineChart(data) {
+  const labels = data.map(d => d.bucket);
+  const values = data.map(d => d.failures);
+  if (timelineChart) { timelineChart.destroy(); }
+  timelineChart = new Chart($('#c-timeline'), {
+    type: 'bar',
+    data: {
+      labels, datasets: [{
+        data: values, backgroundColor: '#f8514980', borderColor: '#f85149', borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8b949e', maxRotation: 45 }, grid: { color: '#21262d' } },
+        y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+      }
+    }
+  });
+}
+
+// Initial load + auto-refresh
+refresh();
+setInterval(() => { if ($('#auto-refresh').checked) refresh(); }, 10000);
+</script>
+</body>
+</html>

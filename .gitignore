@@ -1,3 +1,4 @@
 # Data files (logs, database, exports)
 data/
 .DS_Store
+__pycache__
